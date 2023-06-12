@@ -1,18 +1,15 @@
 import {
+  AccessoryConfig,
+  AccessoryPlugin,
   API,
   CharacteristicEventTypes,
   CharacteristicGetCallback,
   CharacteristicSetCallback,
   CharacteristicValue,
   HAP,
-  IndependentPlatformPlugin,
   Logging,
-  PlatformAccessory,
-  PlatformConfig,
+  Service
 } from "homebridge";
-
-const PLUGIN_NAME = "homebridge-independent-platform-example";
-const PLATFORM_NAME = "ExampleIndependentPlatform";
 
 /*
  * IMPORTANT NOTICE
@@ -37,57 +34,64 @@ const PLATFORM_NAME = "ExampleIndependentPlatform";
  * like this for example and used to access all exported variables and classes from HAP-NodeJS.
  */
 let hap: HAP;
-let Accessory: typeof PlatformAccessory;
 
+/*
+ * Initializer function called when the plugin is loaded.
+ */
 export = (api: API) => {
   hap = api.hap;
-  Accessory = api.platformAccessory;
-
-  api.registerPlatform(PLATFORM_NAME, ExampleIndependentPlatform);
+  api.registerAccessory("InfinitiveThermostat", InfinitiveThermostat);
 };
 
-class ExampleIndependentPlatform implements IndependentPlatformPlugin {
+class InfinitiveThermostat implements AccessoryPlugin {
 
   private readonly log: Logging;
-  private readonly api: API;
+  private readonly name: string;
+  private switchOn = false;
 
-  constructor(log: Logging, config: PlatformConfig, api: API) {
+  private readonly switchService: Service;
+  private readonly informationService: Service;
+
+  constructor(log: Logging, config: AccessoryConfig, api: API) {
     this.log = log;
-    this.api = api;
+    this.name = config.name;
 
-    // probably parse config or something here
-
-    this.publishExampleExternalAccessory("MySwitch 1");
-
-    log.info("Example platform finished initializing!");
-  }
-
-  publishExampleExternalAccessory(name: string) {
-    let switchOn = false;
-
-    const uuid = hap.uuid.generate("homebridge:examples:external-switch:" + name);
-    const accessory = new Accessory("External Switch", uuid);
-
-    const switchService = new hap.Service.Switch(name);
-    switchService.getCharacteristic(hap.Characteristic.On)
+    this.switchService = new hap.Service.Switch(this.name);
+    this.switchService.getCharacteristic(hap.Characteristic.On)
       .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
-        this.log.info("Current state of the switch was returned: " + (switchOn? "ON": "OFF"));
-        callback(undefined, switchOn);
+        log.info("Current state of the switch was returned: " + (this.switchOn? "ON": "OFF"));
+        callback(undefined, this.switchOn);
       })
       .on(CharacteristicEventTypes.SET, (value: CharacteristicValue, callback: CharacteristicSetCallback) => {
-        switchOn = value as boolean;
-        this.log.info("Switch state was set to: " + (switchOn? "ON": "OFF"));
+        this.switchOn = value as boolean;
+        log.info("Switch state was set to: " + (this.switchOn? "ON": "OFF"));
         callback();
       });
 
-    accessory.getService(hap.Service.AccessoryInformation)!
+    this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(hap.Characteristic.Manufacturer, "Custom Manufacturer")
-      .setCharacteristic(hap.Characteristic.Model, "External Switch");
+      .setCharacteristic(hap.Characteristic.Model, "Custom Model");
 
-    accessory.addService(switchService);
+    log.info("Switch finished initializing!");
+  }
 
-    // will be exposed as an additional accessory and must be paired separately with the pincode of homebridge
-    this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
+  /*
+   * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
+   * Typical this only ever happens at the pairing process.
+   */
+  identify(): void {
+    this.log("Identify!");
+  }
+
+  /*
+   * This method is called directly after creation of this instance.
+   * It should return all services which should be added to the accessory.
+   */
+  getServices(): Service[] {
+    return [
+      this.informationService,
+      this.switchService,
+    ];
   }
 
 }

@@ -1,8 +1,8 @@
 {
-  "name": "homebridge-independent-platform-example",
+  "name": "homebridge-accessory-example",
   "version": "1.0.0",
-  "description": "An example independent platform plugin for homebridge written in Typescript",
-  "main": "dist/independent-platform.js",
+  "description": "An example accessory plugin for homebridge written in Typescript",
+  "main": "dist/accessory.js",
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "rimraf ./dist && tsc",
@@ -30,7 +30,7 @@
     "url": "https://github.com/homebridge/homebridge-examples/issues"
   },
   "devDependencies": {
-    "@types/node": "16.18.25",
+    "@types/node": "16.11.7",
     "typescript": "^5.0.4",
     "rimraf": "^5.0.0",
     "homebridge": "^1.6.1"
