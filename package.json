@@ -1,7 +1,7 @@
 {
-  "name": "homebridge-accessory-example",
+  "name": "homebridge-infinitive",
   "version": "1.0.0",
-  "description": "An example accessory plugin for homebridge written in Typescript",
+  "description": "Carrier Infinity Thermostat",
   "main": "dist/accessory.js",
   "scripts": {
     "clean": "rimraf ./dist",
@@ -24,10 +24,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/homebridge/homebridge-examples.git"
+    "url": "https://github.com/pkkemp/homekit-infinitive.git"
   },
   "bugs": {
-    "url": "https://github.com/homebridge/homebridge-examples/issues"
+    "url": "https://github.com/pkkemp/homekit-infinitive/issues"
   },
   "devDependencies": {
     "@types/node": "16.11.7",
